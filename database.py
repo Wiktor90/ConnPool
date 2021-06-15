@@ -1,4 +1,5 @@
 import psycopg2 as ps2
+from configparser import ConfigParser
 
 
 class DataBase:
@@ -15,3 +16,14 @@ class DataBase:
             port=self.port,
             database=self.database,
         )
+
+
+config = ConfigParser()
+config.read("config.ini")
+db = DataBase(
+    config["DATABASE"]["db_user"],
+    config["DATABASE"]["password"],
+    config["DATABASE"]["host"],
+    config["DATABASE"]["port"],
+    config["DATABASE"]["database"],
+)

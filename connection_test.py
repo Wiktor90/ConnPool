@@ -1,17 +1,7 @@
 import time
 from configparser import ConfigParser
-from database import DataBase
+from database import db
 
-
-config = ConfigParser()
-config.read("config.ini")
-db = DataBase(
-    config["DATABASE"]["db_user"],
-    config["DATABASE"]["password"],
-    config["DATABASE"]["host"],
-    config["DATABASE"]["port"],
-    config["DATABASE"]["database"],
-)
 
 query = """SELECT * FROM actor LIMIT 5"""
 
