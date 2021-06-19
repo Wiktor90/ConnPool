@@ -1,5 +1,3 @@
-from database import db
-
 
 class ConnectionPool:
 
@@ -35,7 +33,7 @@ class ConnectionPool:
     def get_connection(self):
         if len(self.pool) <= 100:
             free_connections = self.check_free_connections()
-
+            # print(f'free: {free_connections}, list_conn: {len(self.pool)}' )
             if free_connections == 0:
                 self.create_additional_connection()
 
@@ -44,11 +42,11 @@ class ConnectionPool:
             conn_in_use = self.set_connection_status(connection, False)
             self.update_connection_obj_in_pool(conn_in_use, index)
             return (conn_in_use, index)
-
-        return 'All connections ocupaded!'
+        # print('Refused')
+        return ConnectionRefusedError
 
     
-    def return_connection(self, connection, idnex):
+    def return_connection(self, connection, index):
         conn_free = self.set_connection_status(connection, True)
         self.update_connection_obj_in_pool(conn_free, index)
         return self.pool
