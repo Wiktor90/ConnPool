@@ -5,7 +5,7 @@ class ConnectionPool:
         self.in_use = in_use
         self.number = number
         self.max_conn = max_conn
-        self.pool = [[self.connection, self.in_use, i] for i in range(self.number)]
+        self.pool = [[self.connection, self.in_use] for _ in range(self.number)]
 
 
     def check_free_connections(self):
@@ -14,20 +14,35 @@ class ConnectionPool:
 
 
     def get_first_free_connection(self):
-        """return index of first free conn in pool"""
+        """return index of first free conn in pool or info str"""
         g = (e for e, conn in enumerate(self.pool) if conn[1] is False)
         try:
-            free_conn_index = next(g)
+            index = next(g)
         except StopIteration:
             return f"WARNINIG: NO free connections now!"
-        return free_conn_index
-        
+        return self.pool[index]
 
 
-    # def set_connection_status(self, connection, in_use):
-    #     """return tuple obj example: (conn_obj, True)"""
-    #     connection[1] = in_use
-    #     return connection
+    def set_connection_status_occupied(self, connection):
+        connection[1] = True
+        return self.pool
+
+
+    def create_additional_connection(self):
+        free_connections = self.check_free_connections() #int
+        if free_connections == 0:
+            self.pool.append([self.connection, self.in_use])
+            return self.pool[-1]
+        return None
+
+    
+    def get_connection(self):
+        if len(self.pool) <= self.max_conn:
+            self.create_additional_connection()
+            free_conn = self.get_first_free_connection()
+            self.set_connection_status_occupied(free_conn)
+            return free_conn
+        return "Pool can't allow add more connections"
 
 
     # def update_connection_obj_in_pool(self, connection, index):
@@ -35,20 +50,7 @@ class ConnectionPool:
     #     return self.pool[index]
 
     
-    # def get_connection(self):
-    #     if len(self.pool) <= 100:
-    #         free_connections = self.check_free_connections()
-    #         # print(f'free: {free_connections}, list_conn: {len(self.pool)}' )
-    #         if free_connections == 0:
-    #             self.create_additional_connection()
 
-    #         index = self.get_first_free_connection()
-    #         connection = self.pool[index]
-    #         conn_in_use = self.set_connection_status(connection, False)
-    #         self.update_connection_obj_in_pool(conn_in_use, index)
-    #         return (conn_in_use, index)
-    #     # print('Refused')
-    #     return ConnectionRefusedError
 
     
     # def return_connection(self, connection, index):
@@ -57,8 +59,7 @@ class ConnectionPool:
     #     return self.pool
 
 
-    # def create_additional_connection(self):
-    #     return self.pool.append([self.connection, self.in_use])
+
 
 
     # def destroy_connection(self):
@@ -71,4 +72,11 @@ class ConnectionPool:
 
 p = ConnectionPool('CONN')
 print(p.pool)
-print(p.get_first_free_connection())
+for conn in p.pool:
+    p.set_connection_status_occupied(conn)
+print(len(p.pool))
+print(30*'#')
+print(p.create_additional_connection())
+print(len(p.pool))
+
+
