@@ -39,7 +39,7 @@ class ConnectionPool:
             return self.pool[-1]
         return None
 
-    
+
     def get_connection(self):
         if len(self.pool) <= self.max_conn:
             self.create_additional_connection_if_needed()
@@ -49,14 +49,10 @@ class ConnectionPool:
         return "Pool can't allow add more connections"
 
 
-    
-
-
-    
-    # def return_connection(self, connection, index):
-    #     conn_free = self.set_connection_status(connection, True)
-    #     self.update_connection_obj_in_pool(conn_free, index)
-    #     return self.pool
+    def return_connection(self, connection):
+        connection[1] = False
+        return connection
+        
 
 
 
@@ -71,9 +67,14 @@ class ConnectionPool:
     #     return self.pool
 
 p2 = ConnectionPool("DB")
-p2.pool = [p2.set_connection_status_occupied(conn) for conn in p2.pool]
+# p2.pool = [p2.set_connection_status_occupied(conn) for conn in p2.pool]
+c1 = p2.get_connection()
+c2 = p2.get_connection()
+c3 = p2.get_connection()
 print(p2.pool)
-additional_conn = p2.create_additional_connection_if_needed()
-print(additional_conn)
+print('\n')
+
+p2.return_connection(c2)
+print(p2.pool)
 
 

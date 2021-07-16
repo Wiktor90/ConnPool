@@ -51,3 +51,12 @@ class TestConnectionPool(unittest.TestCase):
         self.assertTrue(len(self.p2.pool) > self.p.number)
         self.assertTrue(conn[1] is True)
         self.assertTrue(self.p2.pool[-1][1] is True)
+
+    def test_return_connection(self):
+        c1 = self.p.get_connection() # firs obj in pool
+        c2 = self.p2.get_connection() # last obj in pool
+
+        self.assertTrue(all([self.p.return_connection(c1)[1] is False,
+                            self.p.pool[0][1] is False]))
+        self.assertTrue(all([self.p2.return_connection(c2)[1] is False,
+                            self.p2.pool[-1][1] is False]))
