@@ -15,8 +15,8 @@ class ConnectionPool:
 
     def get_first_free_connection(self):
         """return index of first free conn in pool or info str"""
-        g = (e for e, conn in enumerate(self.pool) if conn[1] is False)
         try:
+            g = (e for e, conn in enumerate(self.pool) if conn[1] is False)
             index = next(g)
         except StopIteration:
             return f"WARNINIG: NO free connections now!"
@@ -25,10 +25,14 @@ class ConnectionPool:
 
     def set_connection_status_occupied(self, connection):
         connection[1] = True
-        return self.pool
+        return connection
 
 
-    def create_additional_connection(self):
+    def create_additional_connection_if_needed(self):
+        """
+        check if no free connections. if no free conns - add one
+        """
+        
         free_connections = self.check_free_connections() #int
         if free_connections == 0:
             self.pool.append([self.connection, self.in_use])
@@ -38,16 +42,12 @@ class ConnectionPool:
     
     def get_connection(self):
         if len(self.pool) <= self.max_conn:
-            self.create_additional_connection()
+            self.create_additional_connection_if_needed()
             free_conn = self.get_first_free_connection()
             self.set_connection_status_occupied(free_conn)
             return free_conn
         return "Pool can't allow add more connections"
 
-
-    # def update_connection_obj_in_pool(self, connection, index):
-    #     self.pool[index] = connection
-    #     return self.pool[index]
 
     
 
@@ -70,13 +70,10 @@ class ConnectionPool:
     #                 self.pool.pop(index)
     #     return self.pool
 
-p = ConnectionPool('CONN')
-print(p.pool)
-for conn in p.pool:
-    p.set_connection_status_occupied(conn)
-print(len(p.pool))
-print(30*'#')
-print(p.create_additional_connection())
-print(len(p.pool))
+p2 = ConnectionPool("DB")
+p2.pool = [p2.set_connection_status_occupied(conn) for conn in p2.pool]
+print(p2.pool)
+additional_conn = p2.create_additional_connection_if_needed()
+print(additional_conn)
 
 

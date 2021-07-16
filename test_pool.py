@@ -25,17 +25,29 @@ class TestConnectionPool(unittest.TestCase):
 
     def test_connection_is_ocupied(self):
         conn = self.p.pool[0]
-        conn_occupied = self.p.set_connection_status_occupied(conn)
-        self.assertTrue(conn_occupied[1] is True)
+        self.p.set_connection_status_occupied(conn)
+        self.assertTrue(conn[1] is True)
 
     def test_check_that_pool_is_growing(self):
-        self.p2.create_additional_connection()
+        self.p2.create_additional_connection_if_needed()
         self.assertTrue(len(self.p2.pool) > self.p.number)
 
     def test_adding_new_conn_to_pool_when_others_occupied(self):
-        additional_conn = self.p2.create_additional_connection()
+        additional_conn = self.p2.create_additional_connection_if_needed()
         self.assertTrue(all([additional_conn[1] is False,
                             self.p2.pool.index(additional_conn) == 10]))
 
-    def test_given_connection_status(self):
-        conn = self.p.get_connection
+    def test_given_connection_status_on_clean_pool(self):
+        conn = self.p.get_connection()
+
+        self.assertTrue(self.p.check_free_connections() < self.p.number)
+        self.assertTrue(len(self.p.pool) == self.p.number)
+        self.assertTrue(conn[1] is True)
+        self.assertTrue(self.p.pool[0][1] is True)
+
+    def test_given_connection_status_on_busy_pool(self):
+        conn = self.p2.get_connection()
+
+        self.assertTrue(len(self.p2.pool) > self.p.number)
+        self.assertTrue(conn[1] is True)
+        self.assertTrue(self.p2.pool[-1][1] is True)
