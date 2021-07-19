@@ -7,9 +7,9 @@ from pool import ConnectionPool
 from database import db
 
 
-c_pool = ConnectionPool(db.connection, number = 10)
+c_pool = ConnectionPool(db.connection, number = 5)
 query = """SELECT * FROM film"""
-workers = [i for i in range(100)]
+workers = [i for i in range(50)]
 
 
 def conn_test(n):
