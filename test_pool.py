@@ -12,15 +12,15 @@ class TestConnectionPool(unittest.TestCase):
 
     def test_check_free_conn_amout(self):
         free_connections = self.p.check_free_connections()
-        self.assertEqual(free_connections, 10)
+        self.assertEqual(free_connections, self.p.number)
 
     def test_get_first_free_connection(self):
-        conn = self.p.get_first_free_connection()
+        conn = self.p.get_first_free_connection(self.p.pool)
         self.assertIsInstance(conn, list)
         self.assertTrue(conn[1] is False)
 
     def test_check_all_connection_occupied(self):
-        result = self.p2.get_first_free_connection()
+        result = self.p2.get_first_free_connection(self.p2.pool)
         self.assertIsInstance(result, str)
 
     def test_connection_is_ocupied(self):
@@ -35,7 +35,7 @@ class TestConnectionPool(unittest.TestCase):
     def test_adding_new_conn_to_pool_when_others_occupied(self):
         additional_conn = self.p2.create_additional_connection_if_needed()
         self.assertTrue(all([additional_conn[1] is False,
-                            self.p2.pool.index(additional_conn) == 10]))
+                            len(self.p2.pool) == self.p2.number + 1]))
 
     def test_given_connection_status_on_clean_pool(self):
         conn = self.p.get_connection()
@@ -60,3 +60,11 @@ class TestConnectionPool(unittest.TestCase):
                             self.p.pool[0][1] is False]))
         self.assertTrue(all([self.p2.return_connection(c2)[1] is False,
                             self.p2.pool[-1][1] is False]))
+
+    def test_if_additional_free_conn_is_deleted(self):
+        additional_conn = self.p2.get_connection()
+        self.p2.return_connection(additional_conn)
+        self.assertEqual(len(self.p2.pool), self.p2.number + 1)
+
+        self.p2.destroy_additional_free_connection()
+        self.assertEqual(len(self.p2.pool), self.p2.number)
