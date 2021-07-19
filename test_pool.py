@@ -68,3 +68,14 @@ class TestConnectionPool(unittest.TestCase):
 
         self.p2.destroy_additional_free_connection()
         self.assertEqual(len(self.p2.pool), self.p2.number)
+
+    def test_if_pool_is_cleaned_up(self):
+        for _ in range(10):
+            additional_conn = self.p2.create_additional_connection_if_needed()
+            self.p2.set_connection_status_occupied(additional_conn)
+
+        self.p2.pool[12][1] = False 
+        self.p2.pool[15][1] = False
+
+        self.p2.clean_pool()
+        self.assertTrue(all([conn[1] for conn in self.p2.pool]))

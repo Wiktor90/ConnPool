@@ -63,20 +63,10 @@ class ConnectionPool:
                 index = self.pool.index(conn)
                 return self.pool.pop(index)
         return 0
-                
 
 
-# p2 = ConnectionPool("DB")
-# p2.pool = [p2.set_connection_status_occupied(conn) for conn in p2.pool]
-# c1 = p2.create_additional_connection_if_needed()
-# p2.set_connection_status_occupied(c1)
-# c2 = p2.create_additional_connection_if_needed()
-# p2.return_connection(c1)
-# p2.set_connection_status_occupied(c2)
-
-# print(len(p2.pool))
-# print(p2.pool)
-# p2.destroy_additional_free_connection()
-# print(len(p2.pool))
-# print(p2.pool)
-# p2.return_connection(c2)
+    def clean_pool(self):
+        while True:
+            destroy = self.destroy_additional_free_connection()
+            if destroy == 0:
+                break
