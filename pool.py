@@ -1,6 +1,9 @@
-class ConnectionPool:
+import threading
+
+class ConnectionPool():
 
     def __init__(self, connection, in_use = False, number = 10, max_conn = 100):
+        self.sem = threading.Semaphore()
         self.connection = connection
         self.in_use = in_use
         self.number = number
@@ -20,7 +23,7 @@ class ConnectionPool:
             index = next(g)
         except StopIteration:
             return f"WARNINIG: NO free connections now!"
-        return self.pool[index]
+        return self.pool[index] 
 
 
     def set_connection_status_occupied(self, connection):
@@ -41,11 +44,14 @@ class ConnectionPool:
 
 
     def get_connection(self):
+        self.sem.acquire()
         if len(self.pool) <= self.max_conn:
             self.create_additional_connection_if_needed()
             free_conn = self.get_first_free_connection(self.pool)
             self.set_connection_status_occupied(free_conn)
+            self.sem.release()
             return free_conn
+        self.sem.release()
         return "Pool can't allow add more connections"
 
 
