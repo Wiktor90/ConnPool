@@ -72,7 +72,13 @@ class ConnectionPool():
 
 
     def clean_pool(self):
+        counter = 0
         while True:
+            self.sem.acquire()
             destroy = self.destroy_additional_free_connection()
+            self.sem.release()
+
             if destroy == 0:
                 break
+            counter += 1
+        return counter

@@ -7,7 +7,7 @@ from pool import ConnectionPool
 from database import db
 
 
-c_pool = ConnectionPool(db.connection, number = 5)
+c_pool = ConnectionPool(db.connection, number = 4)
 query = """SELECT * FROM film"""
 workers = [i for i in range(50)]
 
@@ -25,6 +25,13 @@ def conn_test(n):
     c_pool.return_connection(conn)
     print(f'Worker {n} OUT // free : {c_pool.check_free_connections()} // total: {len(c_pool.pool)}')
 
+    if n%10 == 0:
+        print(f'Removed connections: {c_pool.clean_pool()} <<<--------')
+
 
 with concurrent.futures.ThreadPoolExecutor() as executor:
     executor.map(conn_test, workers)
+
+print(f'pool: {len(c_pool.pool)}')
+print(f'Removed connections: {c_pool.clean_pool()} <<<--------')
+print(f'pool: {len(c_pool.pool)}')
