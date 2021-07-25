@@ -2,6 +2,12 @@ import time
 from configparser import ConfigParser
 from database import db
 
+"""
+Ten skrypt sprawdza tylko roznice w czasie miedzy
+wykonywaniem wielu zapytan SQL na 1 stalym polaczeniu do DB,
+a miedzy wieloma zapytaniami SQL wykonywanymi za kazdym razem 
+na nowoutworzonym polaczeniu do DB.
+"""
 
 query = """SELECT * FROM actor LIMIT 5"""
 
