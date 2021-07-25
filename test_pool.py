@@ -3,12 +3,14 @@ import unittest
 from pool import ConnectionPool
 from database import db
 
-class TestConnectionPool(unittest.TestCase):
 
+class TestConnectionPool(unittest.TestCase):
     def setUp(self):
         self.p = ConnectionPool(db)
         self.p2 = ConnectionPool(db)
-        self.p2.pool = [self.p2.set_connection_status_occupied(conn) for conn in self.p2.pool]
+        self.p2.pool = [
+            self.p2.set_connection_status_occupied(conn) for conn in self.p2.pool
+        ]
 
     def test_check_free_conn_amout(self):
         free_connections = self.p.check_free_connections()
@@ -34,8 +36,9 @@ class TestConnectionPool(unittest.TestCase):
 
     def test_adding_new_conn_to_pool_when_others_occupied(self):
         additional_conn = self.p2.create_additional_connection_if_needed()
-        self.assertTrue(all([additional_conn[1] is False,
-                            len(self.p2.pool) == self.p2.number + 1]))
+        self.assertTrue(
+            all([additional_conn[1] is False, len(self.p2.pool) == self.p2.number + 1])
+        )
 
     def test_given_connection_status_on_clean_pool(self):
         conn = self.p.get_connection()
@@ -53,13 +56,20 @@ class TestConnectionPool(unittest.TestCase):
         self.assertTrue(self.p2.pool[-1][1] is True)
 
     def test_return_connection(self):
-        c1 = self.p.get_connection() # firs obj in pool
-        c2 = self.p2.get_connection() # last obj in pool
+        c1 = self.p.get_connection()  # firs obj in pool
+        c2 = self.p2.get_connection()  # last obj in pool
 
-        self.assertTrue(all([self.p.return_connection(c1)[1] is False,
-                            self.p.pool[0][1] is False]))
-        self.assertTrue(all([self.p2.return_connection(c2)[1] is False,
-                            self.p2.pool[-1][1] is False]))
+        self.assertTrue(
+            all([self.p.return_connection(c1)[1] is False, self.p.pool[0][1] is False])
+        )
+        self.assertTrue(
+            all(
+                [
+                    self.p2.return_connection(c2)[1] is False,
+                    self.p2.pool[-1][1] is False,
+                ]
+            )
+        )
 
     def test_if_additional_free_conn_is_deleted(self):
         additional_conn = self.p2.get_connection()
@@ -74,7 +84,7 @@ class TestConnectionPool(unittest.TestCase):
             additional_conn = self.p2.create_additional_connection_if_needed()
             self.p2.set_connection_status_occupied(additional_conn)
 
-        self.p2.pool[12][1] = False 
+        self.p2.pool[12][1] = False
         self.p2.pool[15][1] = False
 
         self.p2.clean_pool()

@@ -18,8 +18,11 @@ def time_wraper(func):
         result = func(*args, **kwargs)
         stop = time.perf_counter()
         x = [x for x in args][-1]
-        print(f"""Performance of {func.__name__}(loops: {x}): {round(stop - start, 2)} second(s)""")
+        print(
+            f"""Performance of {func.__name__}(loops: {x}): {round(stop - start, 2)} second(s)"""
+        )
         return result
+
     return wraper_func
 
 
